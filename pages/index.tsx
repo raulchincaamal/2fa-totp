@@ -3,10 +3,15 @@ import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import styles from '@/styles/Home.module.css';
 import { Button, Input, QRCode, Space } from 'antd';
+import { useMutation } from '@tanstack/react-query';
+import serviceVerifyToken from '@/services/serviceVerifyToken';
+import { useState } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
+  const [token, setToken] = useState<string | null>(null)
+  const { mutate, isLoading, data } = useMutation(serviceVerifyToken)
   return (
     <>
       <Head>
@@ -17,16 +22,20 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <Space direction="vertical" align="center">
+          <span>Escanea el código con Microsoft Authenticator </span>
           <QRCode
             value={
-              'otpauth://totp/Macropay%20Financing%3A2FA%20Huella?secret=HBJTSWC5I4XTSW3PII3TSXRMJ5GVEWCB'
+              'otpauth://totp/Macropay%20Financing%3A2FA%20Huella?secret=JZOVWOTMO5KEMMR2EV2HGUKJGF4DW6SC'
             }
             size={300}
           />
           <Space.Compact style={{ width: '100%' }}>
-            <Input defaultValue="000000" />
-            <Button type="primary">Validar</Button>
+            <Input onChange={(event) => setToken(event.target.value)} minLength={6} maxLength={6} disabled={isLoading} />
+            <Button type="primary" onClick={() => {
+              mutate({ secret: "JZOVWOTMO5KEMMR2EV2HGUKJGF4DW6SC", token })
+            }} disabled={isLoading}>Validar</Button>
           </Space.Compact>
+          { data?.isValid ? "Código valido" : "Código invalido" }
         </Space>
       </main>
     </>
